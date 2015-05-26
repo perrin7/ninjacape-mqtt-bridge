@@ -6,9 +6,8 @@
 #
 # - uses the Python MQTT client from the Mosquitto project http://mosquitto.org (now in Paho)
 #
-# Perrin Samuel
-# 17/05/2015
-# Rev 0
+# https://github.com/perrin7/ninjacape-mqtt-bridge
+# perrin7
  
 import serial
 import paho.mqtt.client as mqtt
@@ -17,10 +16,14 @@ import json
 import threading
 import time
 
+### Settings
 serialdev = '/dev/ttyO1'
-broker = "127.0.0.1"
-port = 1883
-debug = False
+broker = "127.0.0.1" # mqtt broker
+port = 1883 # mqtt broker port
+
+debug = False  ## set this to True for lots of prints
+
+# buffer of data to output to the serial port
 outputData = []
  
 ####  MQTT callbacks
@@ -51,7 +54,6 @@ def on_message(client, userdata, message):
 	if(debug):
 		print "Unhandled Message Received: ", message.topic, message.paylod		
 
-
 #called on exit
 #close serial, disconnect MQTT
 def cleanup():
@@ -61,6 +63,7 @@ def cleanup():
 
 def mqtt_to_JSON_output(mqtt_message):
 	topics = mqtt_message.topic.split('/');
+	## JSON message in ninjaCape form
 	json_data = '{"DEVICE": [{"G":"0","V":0,"D":' + topics[2] + ',"DA":"' + mqtt_message.payload + '"}]})'
 	return json_data
 
@@ -85,8 +88,6 @@ def serial_read_and_publish(ser, mqttc):
 		except(KeyError):
 			# TODO should probably do something here if the data is malformed
 			pass
-	
-		
 
 ############ MAIN PROGRAM START
 try:
