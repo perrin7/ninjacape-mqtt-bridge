@@ -17,4 +17,9 @@ Messages to be sent out on 433Mhz should be pushlished to:
 </li>
 <li>The script subscribes to all updates on /ninjaCape/output/#</li>
 </ul>
+
+<h2>TODO List</h2>
+<ul><li>Make it daemon-ised.  At the moment I'm just running it in a 'screen' instance.  </li>
+<li>Catch invalid JSON messages and throw an error, instead of just ignoring it.</li>
+</ul>
 </html>
