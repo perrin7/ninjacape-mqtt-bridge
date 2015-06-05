@@ -4,6 +4,8 @@
 
 You need to have an MQTT broker installed, such as http://mosquitto.org/
 
+<br><b><a href="https://github.com/perrin7/ninjacape-mqtt-bridge/wiki">See the wiki for more information</a></b>
+
 <h3>MQTT messages are structured as follows:</h3>
 <ul>
 <li>Messages received on 433Mhz as published to:
