@@ -65,8 +65,8 @@ def cleanup():
 
 def mqtt_to_JSON_output(mqtt_message):
 	topics = mqtt_message.topic.split('/');
-	## JSON message in ninjaCape form
-	json_data = '{"DEVICE": [{"G":"0","V":0,"D":' + topics[2] + ',"DA":"' + mqtt_message.payload + '"}]})'
+	## JSON message in ninjaCape form -- ninjacape/output/device/gid 
+	json_data = '{"DEVICE": [{"G":"'+ topics[3] +'","V":0,"D":' + topics[2] + ',"DA":"' + mqtt_message.payload + '"}]})'
 	return json_data
 
 #thread for reading serial data and publishing to MQTT client
@@ -85,8 +85,10 @@ def serial_read_and_publish(ser, mqttc):
 
 		try:
 			device = str( json_data['DEVICE'][0]['D'] )
+			gid = str( json_data['DEVICE'][0]['G'] )
 			data = str( json_data['DEVICE'][0]['DA'] )
-			mqttc.publish("ninjaCape/input/"+device, data)
+			
+			mqttc.publish("ninjaCape/input/"+device+"/"+gid, data)
 		except(KeyError):
 			# TODO should probably do something here if the data is malformed
 			pass
