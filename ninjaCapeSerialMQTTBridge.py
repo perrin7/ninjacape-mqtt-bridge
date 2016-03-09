@@ -18,7 +18,7 @@ import time
 
 ### Settings
 serialdev = '/dev/ttyO1'
-broker = "127.0.0.1" # mqtt broker
+broker = "server.local" # mqtt broker
 port = 1883 # mqtt broker port
 
 debug = False  ## set this to True for lots of prints
@@ -70,6 +70,9 @@ def mqtt_to_JSON_output(mqtt_message):
 #thread for reading serial data and publishing to MQTT client
 def serial_read_and_publish(ser, mqttc):
 	ser.flushInput()
+	
+	lastMessage = ""
+	lastMessageTime = time.time()
 
 	while True:
 		line = ser.readline() # this is blocking
@@ -82,9 +85,28 @@ def serial_read_and_publish(ser, mqttc):
 			print "json decoded:",json_data
 
 		try:
+			theTime = time.time()
 			device = str( json_data['DEVICE'][0]['D'] )
 			data = str( json_data['DEVICE'][0]['DA'] )
-			mqttc.publish("ninjaCape/input/"+device, data)
+		
+		# code to 'debounce' the inputs - maximum of one message per 2 seconds from each device	
+			if(lastMessageTime + 2.0 < theTime):
+				if(debug):
+					print "enough time between lmt: " + str(lastMessageTime) + " theTime: " + str(theTime)
+				mqttc.publish("ninjaCape/input/"+device, data)
+				lastMessage = device+data
+				lastMessageTime = theTime
+			elif(lastMessage != device+data):
+				if(debug):
+					print "different messages lm:" + lastMessage + " cm:" + device+data
+				mqttc.publish("ninjaCape/input/"+device, data)
+				lastMessage = device+data
+				lastMessageTime = theTime
+			else:
+				if(debug):
+					print "debounce!!!!!!"
+				# do nothing!
+
 		except(KeyError):
 			# TODO should probably do something here if the data is malformed
 			pass
@@ -126,7 +148,7 @@ try:
 		if( len(outputData) > 0 ):
 			#print "***data to OUTPUT:",mqtt_to_JSON_output(outputData[0])
 			ser.write(mqtt_to_JSON_output(outputData.pop()))
-		
+
 		time.sleep(0.5)
 
 # handle app closure
